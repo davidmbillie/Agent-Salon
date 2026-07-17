@@ -22,6 +22,7 @@ class SalonConfig:
     data_dir: Path
     mode: str
     max_turns: int
+    start_with: str
     openai: ParticipantConfig
     gemini: ParticipantConfig
     shared_memory: Path
@@ -47,6 +48,7 @@ def load_config(project_dir: Path | None = None) -> SalonConfig:
         data_dir=data_dir,
         mode=str(session.get("mode", "relay")),
         max_turns=int(session.get("max_turns", 6)),
+        start_with=str(session.get("start_with", "openai")).lower(),
         openai=_participant(data_dir, _mapping(participants, "openai")),
         gemini=_participant(data_dir, _mapping(participants, "gemini")),
         shared_memory=_data_path(data_dir, raw, "shared_memory"),
@@ -57,6 +59,8 @@ def validate_config(config: SalonConfig) -> list[str]:
     errors: list[str] = []
     if config.max_turns < 1:
         errors.append("session.max_turns must be at least 1")
+    if config.start_with not in {"openai", "gemini"}:
+        errors.append("session.start_with must be 'openai' or 'gemini'")
     required = (
         config.openai.persona,
         config.openai.private_memory,

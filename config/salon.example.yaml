@@ -1,6 +1,7 @@
 session:
   mode: relay
   max_turns: 6
+  start_with: openai
   require_human_to_start: true
 
 memory:

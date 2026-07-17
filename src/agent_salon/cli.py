@@ -8,7 +8,7 @@ from pathlib import Path
 from agent_salon.config import SalonConfig, load_config, validate_config
 from agent_salon.context import build_instructions
 from agent_salon.domain import Turn
-from agent_salon.orchestrator import relay
+from agent_salon.orchestrator import RelayInterrupted, relay
 from agent_salon.providers import GeminiProvider, OpenAIProvider
 from agent_salon.transcript import save_conversation
 
@@ -33,21 +33,39 @@ def main(argv: list[str] | None = None) -> int:
 
 
 async def _run_relay(config: SalonConfig, message: str) -> int:
-    participants = (
-        OpenAIProvider(config.openai.model),
-        GeminiProvider(config.gemini.model),
-    )
+    by_name = {
+        "openai": OpenAIProvider(config.openai.model),
+        "gemini": GeminiProvider(config.gemini.model),
+    }
+    other = "gemini" if config.start_with == "openai" else "openai"
+    participants = (by_name[config.start_with], by_name[other])
     instructions = {
         "OpenAI": build_instructions(config, config.openai),
         "Gemini": build_instructions(config, config.gemini),
     }
-    conversation = await relay(
-        opening_message=message,
-        participants=participants,
-        instructions=instructions,
-        max_turns=config.max_turns,
-        on_turn=_print_turn,
-    )
+    try:
+        conversation = await relay(
+            opening_message=message,
+            participants=participants,
+            instructions=instructions,
+            max_turns=config.max_turns,
+            on_turn=_print_turn,
+        )
+    except RelayInterrupted as interrupted:
+        if interrupted.conversation.turns:
+            session_dir = save_conversation(
+                config.data_dir,
+                interrupted.conversation,
+                participants,
+                error=interrupted.error,
+            )
+            print(f"\nSaved partial private transcript to {session_dir}")
+        print(
+            f"\n{interrupted.error.provider} could not continue: "
+            f"{interrupted.error.message}",
+            file=sys.stderr,
+        )
+        return 1
     session_dir = save_conversation(config.data_dir, conversation, participants)
     print(f"\nSaved private transcript to {session_dir}")
     return 0

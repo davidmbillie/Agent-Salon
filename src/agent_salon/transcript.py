@@ -5,13 +5,14 @@ from pathlib import Path
 
 import yaml
 
-from agent_salon.domain import Conversation, Provider
+from agent_salon.domain import Conversation, Provider, ProviderError
 
 
 def save_conversation(
     data_dir: Path,
     conversation: Conversation,
     participants: tuple[Provider, Provider],
+    error: ProviderError | None = None,
 ) -> Path:
     now = datetime.now(timezone.utc)
     session_dir = data_dir / "conversations" / now.strftime("%Y-%m-%d-%H%M%S")
@@ -30,6 +31,8 @@ def save_conversation(
             for participant in participants
         ],
     }
+    if error:
+        metadata["interrupted"] = {"provider": error.provider, "message": error.message}
     (session_dir / "metadata.yaml").write_text(
         yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8"
     )

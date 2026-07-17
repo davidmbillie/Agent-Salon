@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 import pytest
 
-from agent_salon.domain import TurnRequest, TurnResponse
-from agent_salon.orchestrator import relay
+from agent_salon.domain import ProviderError, TurnRequest, TurnResponse
+from agent_salon.orchestrator import RelayInterrupted, relay
 
 
 @dataclass
@@ -38,3 +38,29 @@ async def test_relay_rejects_zero_turn_limit() -> None:
     provider = FakeProvider("OpenAI")
     with pytest.raises(ValueError, match="at least 1"):
         await relay("Hello", (provider, provider), {"OpenAI": ""}, 0)
+
+
+@dataclass
+class FailingProvider:
+    name: str
+    model: str = "fake-model"
+
+    async def respond(self, request: TurnRequest) -> TurnResponse:
+        raise ProviderError(self.name, "quota unavailable")
+
+
+@pytest.mark.asyncio
+async def test_relay_exposes_partial_conversation_when_provider_fails() -> None:
+    gemini = FakeProvider("Gemini")
+    openai = FailingProvider("OpenAI")
+
+    with pytest.raises(RelayInterrupted) as caught:
+        await relay(
+            "Hello",
+            (gemini, openai),
+            {"Gemini": "", "OpenAI": ""},
+            max_turns=3,
+        )
+
+    assert [turn.speaker for turn in caught.value.conversation.turns] == ["Gemini"]
+    assert caught.value.error.provider == "OpenAI"

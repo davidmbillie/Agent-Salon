@@ -1,6 +1,13 @@
 from collections.abc import Callable
 
-from agent_salon.domain import Conversation, Provider, Turn, TurnRequest
+from agent_salon.domain import Conversation, Provider, ProviderError, Turn, TurnRequest
+
+
+class RelayInterrupted(Exception):
+    def __init__(self, conversation: Conversation, error: ProviderError) -> None:
+        super().__init__(error.message)
+        self.conversation = conversation
+        self.error = error
 
 
 async def relay(
@@ -21,7 +28,10 @@ async def relay(
             history=tuple(conversation.turns),
             instructions=instructions[provider.name],
         )
-        response = await provider.respond(request)
+        try:
+            response = await provider.respond(request)
+        except ProviderError as error:
+            raise RelayInterrupted(conversation, error) from error
         turn = Turn(speaker=response.provider, text=response.text)
         conversation.turns.append(turn)
         if on_turn:

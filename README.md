@@ -116,3 +116,7 @@ When both API keys have been added to the ignored `.env`, start a bounded relay:
 The providers receive the relevant persona, shared memory, private memory, and
 conversation-mode prompt. API-side storage is disabled for both provider calls;
 the resulting transcript is written only under the private data directory.
+
+Set `session.start_with` in the private `salon.yaml` to `openai` or `gemini`.
+Provider failures are shown as concise messages rather than SDK tracebacks. If a
+later turn fails, the completed portion is still saved as a private transcript.

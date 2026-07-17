@@ -8,4 +8,5 @@ def test_repository_configuration_is_valid(monkeypatch) -> None:
     monkeypatch.setenv("SALON_DATA_DIR", str(project_dir.parent / "agent-salon-data"))
     config = load_config(project_dir)
     assert config.max_turns == 6
+    assert config.start_with == "gemini"
     assert validate_config(config) == []
