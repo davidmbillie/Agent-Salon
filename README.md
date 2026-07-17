@@ -86,12 +86,6 @@ This directory is outside the public repository, so `git add .` from Agent
 Salon cannot accidentally include it. It can later have its own local-only Git
 history or encrypted backup policy.
 
-## First hands-on step
-
-Open the two files in `../agent-salon-data/personas/`. Add only the traits that
-feel essential to recognizing each voice. Representative dialogue excerpts can
-come later; they are often more revealing than a long list of adjectives.
-
 ## Python baseline
 
 Agent Salon targets Python 3.12. Create a local environment and install it:
@@ -101,11 +95,27 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python -m pip install -e ".[dev]"
 ```
 
-Confirm that the public application can see the private data structure:
+Create the sibling private-data directory from the public templates:
+
+```powershell
+.\.venv\Scripts\salon init-data ..\agent-salon-data
+```
+
+The destination may be omitted when using the default sibling location. Setup
+refuses to overwrite a non-empty directory, copies `salon.yaml` and all blank
+identity templates, and writes `SALON_DATA_DIR` to the ignored `.env` while
+preserving any existing API keys.
+
+Add `OPENAI_API_KEY` and `GEMINI_API_KEY` to `.env`, then confirm that the public
+application can see the private data structure:
 
 ```powershell
 .\.venv\Scripts\salon validate
 ```
+
+Now open the two files in `../agent-salon-data/personas/`. Add only the traits
+that feel essential to recognizing each voice. Representative dialogue excerpts
+can come later; they are often more revealing than a long list of adjectives.
 
 When both API keys have been added to the ignored `.env`, start a bounded relay:
 

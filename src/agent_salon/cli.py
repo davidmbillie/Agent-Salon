@@ -5,6 +5,7 @@ import asyncio
 import sys
 from pathlib import Path
 
+from agent_salon.bootstrap import initialize_data
 from agent_salon.config import SalonConfig, load_config, validate_config
 from agent_salon.context import build_instructions
 from agent_salon.domain import Conversation, Turn
@@ -17,7 +18,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
     try:
-        config = load_config(Path(args.project_dir))
+        project_dir = Path(args.project_dir)
+        if args.command == "init-data":
+            destination = initialize_data(project_dir, Path(args.destination))
+            print(f"Created private Agent Salon data at {destination}")
+            print("Add OPENAI_API_KEY and GEMINI_API_KEY to the project's ignored .env file.")
+            return 0
+
+        config = load_config(project_dir)
         errors = validate_config(config)
         if errors:
             for error in errors:
@@ -120,6 +128,13 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="salon")
     parser.add_argument("--project-dir", default=str(Path.cwd()))
     subcommands = parser.add_subparsers(dest="command", required=True)
+    init_parser = subcommands.add_parser("init-data", help="create a private data directory")
+    init_parser.add_argument(
+        "destination",
+        nargs="?",
+        default="../agent-salon-data",
+        help="private data path, relative to the project (default: ../agent-salon-data)",
+    )
     subcommands.add_parser("validate", help="validate configuration and private data paths")
     relay_parser = subcommands.add_parser("relay", help="start a bounded OpenAI/Gemini relay")
     relay_parser.add_argument("message", help="the curator's opening message")
