@@ -77,17 +77,16 @@ def _print_turn(turn: Turn) -> None:
 
 
 def _prompt_curator(_conversation) -> str | None:
-    while True:
-        try:
-            response = input("\nCurator (or /quit): ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return None
-        if response.lower() == "/quit":
-            return None
-        if response:
-            return response
-        print("Please enter a response or /quit.")
+    try:
+        response = input("\nCurator ([Enter] or /continue, /quit): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return None
+    if response.lower() == "/quit":
+        return None
+    if response.lower() == "/continue":
+        return ""
+    return response
 
 
 def _parser() -> argparse.ArgumentParser:

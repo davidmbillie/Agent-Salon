@@ -102,3 +102,24 @@ async def test_curator_can_end_after_a_complete_pair() -> None:
     )
 
     assert [turn.speaker for turn in conversation.turns] == ["OpenAI", "Gemini"]
+
+
+@pytest.mark.asyncio
+async def test_empty_curator_input_continues_without_adding_a_turn() -> None:
+    openai = FakeProvider("OpenAI")
+    gemini = FakeProvider("Gemini")
+
+    conversation = await relay(
+        "Hello",
+        (openai, gemini),
+        {"OpenAI": "", "Gemini": ""},
+        max_turns=4,
+        on_relay_complete=lambda _: "",
+    )
+
+    assert [turn.speaker for turn in conversation.turns] == [
+        "OpenAI",
+        "Gemini",
+        "OpenAI",
+        "Gemini",
+    ]

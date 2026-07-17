@@ -43,5 +43,6 @@ async def relay(
             curator_input = on_relay_complete(conversation)
             if curator_input is None:
                 break
-            conversation.turns.append(Turn(speaker="Curator", text=curator_input))
+            if curator_input:
+                conversation.turns.append(Turn(speaker="Curator", text=curator_input))
     return conversation

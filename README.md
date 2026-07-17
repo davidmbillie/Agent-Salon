@@ -123,4 +123,5 @@ later turn fails, the completed portion is still saved as a private transcript.
 
 With `session.pause_between_relays: true`, the CLI pauses after both participants
 have spoken once. Your response is added to the transcript as a `Curator` turn
-before the next pair. Enter `/quit` to save the conversation and finish early.
+before the next pair. Press Enter or type `/continue` to remain ambient without
+adding a turn; enter `/quit` to save the conversation and finish early.
