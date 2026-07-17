@@ -17,11 +17,12 @@ async def relay(
     max_turns: int,
     on_turn: Callable[[Turn], None] | None = None,
     on_relay_complete: Callable[[Conversation], str | None] | None = None,
+    conversation: Conversation | None = None,
 ) -> Conversation:
     if max_turns < 1:
         raise ValueError("max_turns must be at least 1")
 
-    conversation = Conversation(opening_message=opening_message)
+    conversation = conversation or Conversation(opening_message=opening_message)
     for index in range(max_turns):
         provider = participants[index % len(participants)]
         request = TurnRequest(

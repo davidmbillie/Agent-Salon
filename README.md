@@ -125,3 +125,23 @@ With `session.pause_between_relays: true`, the CLI pauses after both participant
 have spoken once. Your response is added to the transcript as a `Curator` turn
 before the next pair. Press Enter or type `/continue` to remain ambient without
 adding a turn; enter `/quit` to save the conversation and finish early.
+
+Resume a saved conversation verbatim by passing its session directory:
+
+```powershell
+.\.venv\Scripts\salon resume "..\agent-salon-data\conversations\2026-07-17-213509"
+```
+
+Optionally add a new curator message before the next participant speaks:
+
+```powershell
+.\.venv\Scripts\salon resume `
+  "..\agent-salon-data\conversations\2026-07-17-213509" `
+  --message "Let's continue with the ceremonial recovery protocol."
+```
+
+New sessions save both a human-readable `transcript.md` and an authoritative
+`conversation.yaml`. Existing Markdown-only sessions remain resumable. A resume
+creates a new session with `resumed_from` lineage metadata and never modifies the
+original transcript. The configured `max_turns` applies as additional provider
+turns after the loaded history.

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from agent_salon.domain import ProviderError, TurnRequest, TurnResponse
+from agent_salon.domain import Conversation, ProviderError, Turn, TurnRequest, TurnResponse
 from agent_salon.orchestrator import RelayInterrupted, relay
 
 
@@ -123,3 +123,21 @@ async def test_empty_curator_input_continues_without_adding_a_turn() -> None:
         "OpenAI",
         "Gemini",
     ]
+
+
+@pytest.mark.asyncio
+async def test_relay_can_continue_an_existing_conversation_verbatim() -> None:
+    existing = Conversation("Original opening", [Turn("OpenAI", "Earlier response")])
+    gemini = FakeProvider("Gemini")
+    openai = FakeProvider("OpenAI")
+
+    resumed = await relay(
+        existing.opening_message,
+        (gemini, openai),
+        {"OpenAI": "", "Gemini": ""},
+        max_turns=1,
+        conversation=existing,
+    )
+
+    assert resumed is existing
+    assert [turn.speaker for turn in resumed.turns] == ["OpenAI", "Gemini"]
