@@ -1,0 +1,19 @@
+session:
+  mode: relay
+  max_turns: 6
+  require_human_to_start: true
+
+memory:
+  allow_proposals: true
+  auto_approve: false
+
+participants:
+  openai:
+    persona: personas/openai.md
+    private_memory: memory/openai-private.md
+  gemini:
+    persona: personas/gemini.md
+    private_memory: memory/gemini-private.md
+
+shared_memory: memory/shared.md
+
