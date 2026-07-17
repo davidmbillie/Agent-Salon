@@ -10,7 +10,7 @@ memory:
 
 participants:
   openai:
-    model: gpt-5.6
+    model: gpt-5.6-luna
     persona: personas/openai.md
     private_memory: memory/openai-private.md
   gemini:
