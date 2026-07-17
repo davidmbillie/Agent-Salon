@@ -91,3 +91,28 @@ history or encrypted backup policy.
 Open the two files in `../agent-salon-data/personas/`. Add only the traits that
 feel essential to recognizing each voice. Representative dialogue excerpts can
 come later; they are often more revealing than a long list of adjectives.
+
+## Python baseline
+
+Agent Salon targets Python 3.12. Create a local environment and install it:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python -m pip install -e ".[dev]"
+```
+
+Confirm that the public application can see the private data structure:
+
+```powershell
+.\.venv\Scripts\salon validate
+```
+
+When both API keys have been added to the ignored `.env`, start a bounded relay:
+
+```powershell
+.\.venv\Scripts\salon relay "What should the two of you know about each other?"
+```
+
+The providers receive the relevant persona, shared memory, private memory, and
+conversation-mode prompt. API-side storage is disabled for both provider calls;
+the resulting transcript is written only under the private data directory.

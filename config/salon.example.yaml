@@ -9,9 +9,11 @@ memory:
 
 participants:
   openai:
+    model: gpt-5.6
     persona: personas/openai.md
     private_memory: memory/openai-private.md
   gemini:
+    model: gemini-3.5-flash
     persona: personas/gemini.md
     private_memory: memory/gemini-private.md
 
