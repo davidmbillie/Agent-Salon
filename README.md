@@ -116,6 +116,8 @@ application can see the private data structure:
 Now open the two files in `../agent-salon-data/personas/`. Add only the traits
 that feel essential to recognizing each voice. Representative dialogue excerpts
 can come later; they are often more revealing than a long list of adjectives.
+For fictional starting points, browse `personas/examples/` in the generated data
+directory and copy or remix Rowan, Sol, or Vesper into a participant file.
 
 When both API keys have been added to the ignored `.env`, start a bounded relay:
 
