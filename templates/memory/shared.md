@@ -6,4 +6,3 @@ use. Keep entries concise, dated when relevant, and attributable when possible.
 ## Approved memories
 
 - None yet.
-

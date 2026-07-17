@@ -20,4 +20,6 @@ suggestions, but they do not silently decide what becomes canonical memory.
 - 2026-07-17: Begin with provider-neutral folders before selecting Python or
   TypeScript.
 - 2026-07-17: Memory promotion always requires curator approval.
-
+- 2026-07-17: Keep shareable source in `agent-salon` and personal runtime data
+  in the sibling `agent-salon-data` directory, located through
+  `SALON_DATA_DIR`.

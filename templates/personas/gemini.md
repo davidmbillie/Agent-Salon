@@ -1,4 +1,4 @@
-# OpenAI persona
+# Gemini persona
 
 ## Identity
 
@@ -24,4 +24,3 @@ Add short excerpts or paraphrases that capture the voice especially well.
 
 This persona description guides style and continuity. It does not override
 safety requirements, factual honesty, or the curator's current request.
-
