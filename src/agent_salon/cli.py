@@ -50,6 +50,7 @@ async def _run_relay(config: SalonConfig, message: str) -> int:
             instructions=instructions,
             max_turns=config.max_turns,
             on_turn=_print_turn,
+            on_relay_complete=_prompt_curator if config.pause_between_relays else None,
         )
     except RelayInterrupted as interrupted:
         if interrupted.conversation.turns:
@@ -73,6 +74,20 @@ async def _run_relay(config: SalonConfig, message: str) -> int:
 
 def _print_turn(turn: Turn) -> None:
     print(f"\n{turn.speaker}:\n{turn.text}")
+
+
+def _prompt_curator(_conversation) -> str | None:
+    while True:
+        try:
+            response = input("\nCurator (or /quit): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return None
+        if response.lower() == "/quit":
+            return None
+        if response:
+            return response
+        print("Please enter a response or /quit.")
 
 
 def _parser() -> argparse.ArgumentParser:

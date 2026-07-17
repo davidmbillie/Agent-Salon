@@ -120,3 +120,7 @@ the resulting transcript is written only under the private data directory.
 Set `session.start_with` in the private `salon.yaml` to `openai` or `gemini`.
 Provider failures are shown as concise messages rather than SDK tracebacks. If a
 later turn fails, the completed portion is still saved as a private transcript.
+
+With `session.pause_between_relays: true`, the CLI pauses after both participants
+have spoken once. Your response is added to the transcript as a `Curator` turn
+before the next pair. Enter `/quit` to save the conversation and finish early.

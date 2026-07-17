@@ -64,3 +64,41 @@ async def test_relay_exposes_partial_conversation_when_provider_fails() -> None:
 
     assert [turn.speaker for turn in caught.value.conversation.turns] == ["Gemini"]
     assert caught.value.error.provider == "OpenAI"
+
+
+@pytest.mark.asyncio
+async def test_relay_adds_curator_input_after_each_complete_pair() -> None:
+    openai = FakeProvider("OpenAI")
+    gemini = FakeProvider("Gemini")
+
+    conversation = await relay(
+        "Hello",
+        (openai, gemini),
+        {"OpenAI": "", "Gemini": ""},
+        max_turns=4,
+        on_relay_complete=lambda _: "A curator thought",
+    )
+
+    assert [turn.speaker for turn in conversation.turns] == [
+        "OpenAI",
+        "Gemini",
+        "Curator",
+        "OpenAI",
+        "Gemini",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_curator_can_end_after_a_complete_pair() -> None:
+    openai = FakeProvider("OpenAI")
+    gemini = FakeProvider("Gemini")
+
+    conversation = await relay(
+        "Hello",
+        (openai, gemini),
+        {"OpenAI": "", "Gemini": ""},
+        max_turns=6,
+        on_relay_complete=lambda _: None,
+    )
+
+    assert [turn.speaker for turn in conversation.turns] == ["OpenAI", "Gemini"]

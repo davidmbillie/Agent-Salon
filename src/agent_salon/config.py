@@ -23,6 +23,7 @@ class SalonConfig:
     mode: str
     max_turns: int
     start_with: str
+    pause_between_relays: bool
     openai: ParticipantConfig
     gemini: ParticipantConfig
     shared_memory: Path
@@ -49,6 +50,7 @@ def load_config(project_dir: Path | None = None) -> SalonConfig:
         mode=str(session.get("mode", "relay")),
         max_turns=int(session.get("max_turns", 6)),
         start_with=str(session.get("start_with", "openai")).lower(),
+        pause_between_relays=bool(session.get("pause_between_relays", True)),
         openai=_participant(data_dir, _mapping(participants, "openai")),
         gemini=_participant(data_dir, _mapping(participants, "gemini")),
         shared_memory=_data_path(data_dir, raw, "shared_memory"),

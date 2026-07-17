@@ -16,6 +16,7 @@ async def relay(
     instructions: dict[str, str],
     max_turns: int,
     on_turn: Callable[[Turn], None] | None = None,
+    on_relay_complete: Callable[[Conversation], str | None] | None = None,
 ) -> Conversation:
     if max_turns < 1:
         raise ValueError("max_turns must be at least 1")
@@ -36,4 +37,11 @@ async def relay(
         conversation.turns.append(turn)
         if on_turn:
             on_turn(turn)
+        relay_is_complete = (index + 1) % len(participants) == 0
+        more_provider_turns_remain = index + 1 < max_turns
+        if relay_is_complete and more_provider_turns_remain and on_relay_complete:
+            curator_input = on_relay_complete(conversation)
+            if curator_input is None:
+                break
+            conversation.turns.append(Turn(speaker="Curator", text=curator_input))
     return conversation
