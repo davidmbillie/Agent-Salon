@@ -125,6 +125,13 @@ When both API keys have been added to the ignored `.env`, start a bounded relay:
 .\.venv\Scripts\salon relay "What should the two of you know about each other?"
 ```
 
+For a longer message, supply a UTF-8 text or Markdown file. Its contents
+become the message verbatim:
+
+```powershell
+.\.venv\Scripts\salon relay --file "..\agent-salon-data\drafts\opening.md"
+```
+
 The providers receive the relevant persona, shared memory, private memory, and
 conversation-mode prompt. API-side storage is disabled for both provider calls;
 the resulting transcript is written only under the private data directory.
@@ -151,6 +158,17 @@ Optionally add a new curator message before the next participant speaks:
   "..\agent-salon-data\conversations\2026-07-17-213509" `
   --message "Let's continue with the ceremonial recovery protocol."
 ```
+
+Long resume messages can likewise come from a UTF-8 text or Markdown file:
+
+```powershell
+.\.venv\Scripts\salon resume `
+  "..\agent-salon-data\conversations\2026-07-17-213509" `
+  --message-file "..\agent-salon-data\drafts\continuation.md"
+```
+
+File input reports the loaded character count before making an API request.
+Supplying both an inline message and its corresponding file option is rejected.
 
 New sessions save both a human-readable `transcript.md` and an authoritative
 `conversation.yaml`. Existing Markdown-only sessions remain resumable. A resume

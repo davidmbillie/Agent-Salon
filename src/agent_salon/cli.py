@@ -8,6 +8,7 @@ from pathlib import Path
 from agent_salon.bootstrap import initialize_data
 from agent_salon.config import SalonConfig, load_config, validate_config
 from agent_salon.context import build_instructions
+from agent_salon.curator_input import read_text_file
 from agent_salon.domain import Conversation, Turn
 from agent_salon.orchestrator import RelayInterrupted, relay
 from agent_salon.providers import GeminiProvider, OpenAIProvider
@@ -35,10 +36,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Configuration is valid. Private data: {config.data_dir}")
             return 0
         if args.command == "relay":
-            return asyncio.run(_run_relay(config, args.message))
+            message = _relay_message(args.message, args.message_file)
+            return asyncio.run(_run_relay(config, message))
         conversation, lineage = load_conversation(Path(args.source))
-        if args.message:
-            conversation.turns.append(Turn(speaker="Curator", text=args.message))
+        continuation = _optional_message(args.message, args.message_file)
+        if continuation:
+            conversation.turns.append(Turn(speaker="Curator", text=continuation))
         return asyncio.run(
             _run_relay(
                 config,
@@ -124,6 +127,22 @@ def _prompt_curator(_conversation) -> str | None:
     return response
 
 
+def _relay_message(message: str | None, message_file: str | None) -> str:
+    if message and message_file:
+        raise ValueError("Use either a message or --file, not both")
+    if message_file:
+        return read_text_file(Path(message_file))
+    if message:
+        return message
+    raise ValueError("Relay requires a message or --file")
+
+
+def _optional_message(message: str | None, message_file: str | None) -> str | None:
+    if message and message_file:
+        raise ValueError("Use either --message or --message-file, not both")
+    return read_text_file(Path(message_file)) if message_file else message
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="salon")
     parser.add_argument("--project-dir", default=str(Path.cwd()))
@@ -137,12 +156,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     subcommands.add_parser("validate", help="validate configuration and private data paths")
     relay_parser = subcommands.add_parser("relay", help="start a bounded OpenAI/Gemini relay")
-    relay_parser.add_argument("message", help="the curator's opening message")
+    relay_parser.add_argument("message", nargs="?", help="the curator's opening message")
+    relay_parser.add_argument(
+        "--file",
+        dest="message_file",
+        help="read the curator's opening message from a UTF-8 text file",
+    )
     resume_parser = subcommands.add_parser("resume", help="continue a saved conversation")
     resume_parser.add_argument("source", help="session directory, transcript.md, or conversation.yaml")
     resume_parser.add_argument(
         "--message",
         help="append a Curator turn before the next provider speaks",
+    )
+    resume_parser.add_argument(
+        "--message-file",
+        help="read a Curator continuation from a UTF-8 text file",
     )
     return parser
 
